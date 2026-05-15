@@ -20,12 +20,14 @@
 
     <Button
         android:id="@+id/btn_voltar"
-        android:layout_width="80dp"
+        android:layout_width="60dp"
         android:layout_height="48dp"
         android:backgroundTint="#00000000"
         android:textAlignment="center"
+        android:padding="0dp"
         app:icon="?attr/homeAsUpIndicator"
         app:iconSize="22dp"
+        app:iconGravity="textStart"
         app:iconTint="#2B3A32"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,10 +43,11 @@
         android:layout_marginTop="44dp"
         android:fontFamily="@font/inter_bold"
         android:text="Registre-se."
+        android:textColor="#2B3A32"
         android:textFontWeight="500"
-        android:textSize="28dp"
+        android:textSize="33dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.146"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_voltar" />
 
@@ -54,61 +57,109 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Crie uma nova conta para continuar!"
+        android:textColor="#5B6B60"
         android:textFontWeight="300"
         android:textSize="14dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.143"
+        app:layout_constraintHorizontal_bias="0.166"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_title" />
 
     <Button
         android:id="@+id/btn_registrar"
-        android:layout_width="175dp"
-        android:layout_height="51dp"
-        android:layout_marginTop="39dp"
+        android:layout_width="350dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="#2D7A6E"
+        android:fontFamily="@font/inter_semibold"
         android:text="Registrar-se"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ed_confirmPassword" />
 
     <EditText
         android:id="@+id/ed_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_width="350dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:width="300sp"
+        android:background="@color/cardview_light_background"
         android:ems="10"
-        android:hint="Digite um email"
+        android:fontFamily="@font/inter_medium"
+        android:hint="Digite seu email"
         android:inputType="textEmailAddress"
+        android:paddingLeft="10sp"
+        app:layout_constraintCircleRadius="100sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_subtitle" />
 
     <EditText
         android:id="@+id/ed_password"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_width="350dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:width="300sp"
+        android:background="@color/cardview_light_background"
         android:ems="10"
+        android:fontFamily="@font/inter_medium"
         android:hint="Crie uma senha"
         android:inputType="textPassword"
-        android:minHeight="48dp"
+        android:paddingLeft="10sp"
+        app:layout_constraintCircleRadius="100sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ed_email" />
 
     <EditText
         android:id="@+id/ed_confirmPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="35dp"
+        android:layout_width="350dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:width="300sp"
+        android:background="@color/cardview_light_background"
         android:ems="10"
+        android:fontFamily="@font/inter_medium"
         android:hint="Confirme a senha"
         android:inputType="textPassword"
-        android:minHeight="48dp"
+        android:paddingLeft="10sp"
+        app:layout_constraintCircleRadius="100sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ed_password" />
 
+    <LinearLayout
+        android:layout_width="367dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_weight="1"
+        android:gravity="center"
+
+        app:layout_constraintTop_toBottomOf="@+id/btn_registrar"
+        app:layout_constraintVertical_bias="0.571">
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:text="Já tem uma Conta?"
+            android:textColor="#5B6B60"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_medium"
+            android:paddingLeft="10sp"
+            android:text="Faça Login!"
+            android:textColor="#2D7A6E"
+            android:textSize="14sp" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
