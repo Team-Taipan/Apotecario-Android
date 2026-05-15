@@ -25,6 +25,7 @@
         android:layout_width="414dp"
         android:layout_height="542dp"
         android:background="#C8E3E0"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -40,7 +41,8 @@
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view" />
+        app:layout_constraintTop_toTopOf="@+id/view"
+     />
 
     <TextView
         android:id="@+id/textView2"
