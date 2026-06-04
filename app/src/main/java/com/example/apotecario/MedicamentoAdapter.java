@@ -1,5 +1,6 @@
 package com.example.apotecario;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,13 @@ public class MedicamentoAdapter extends RecyclerView.Adapter<MedicamentoAdapter.
         Medicamento med = medicamentos.get(position);
         holder.tvNome.setText(med.getNome());
         holder.ivIcon.setImageResource(med.getIconeRes());
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), FrequenciaMedicamentoActivity.class);
+            // Opcionalmente passar o nome do medicamento selecionado
+            intent.putExtra("NOME_MEDICAMENTO", med.getNome());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
