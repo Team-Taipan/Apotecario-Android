@@ -1,5 +1,6 @@
 package com.example.apotecario;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -35,17 +36,24 @@ public class FrequenciaMedicamentoActivity extends AppCompatActivity {
         rbDuasVezes = findViewById(R.id.rbDuasVezes);
         rbCiclos = findViewById(R.id.rbCiclos);
 
-        // Lógica manual para seleção única, já que estão dentro de CardViews
+        // Lógica manual para seleção única
         rbUmaVez.setOnClickListener(v -> updateSelection(rbUmaVez));
         rbDuasVezes.setOnClickListener(v -> updateSelection(rbDuasVezes));
         rbCiclos.setOnClickListener(v -> updateSelection(rbCiclos));
 
         Button btnProximo = findViewById(R.id.btnProximo);
         btnProximo.setOnClickListener(v -> {
-            if (!rbUmaVez.isChecked() && !rbDuasVezes.isChecked() && !rbCiclos.isChecked()) {
+            int frequencia = 0;
+            if (rbUmaVez.isChecked()) frequencia = 1;
+            else if (rbDuasVezes.isChecked()) frequencia = 2;
+            else if (rbCiclos.isChecked()) frequencia = 3;
+
+            if (frequencia == 0) {
                 Toast.makeText(this, "Por favor, selecione uma frequência", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Indo para configuração de horários...", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, InformacaoTratamentoActivity.class);
+                intent.putExtra("FREQUENCIA_SELECIONADA", frequencia);
+                startActivity(intent);
             }
         });
     }
