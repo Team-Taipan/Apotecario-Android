@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0); 
             return insets;
         });
 
@@ -40,10 +40,15 @@ public class MainActivity extends AppCompatActivity {
 
             if (id == R.id.nav_inicio) {
                 selectedFragment = new InicioFragment();
-            } else {
-                // Aqui criaria os outros fragments
-                // Por enquanto, deixei o InicioFragment
-                selectedFragment = new InicioFragment();
+            } else if (id == R.id.nav_agenda) {
+                // selectedFragment = new AgendaFragment();
+                selectedFragment = new InicioFragment(); // Placeholder
+            } else if (id == R.id.nav_progresso) {
+                // selectedFragment = new ProgressoFragment();
+                selectedFragment = new InicioFragment(); // Placeholder
+            } else if (id == R.id.nav_config) {
+                // selectedFragment = new ConfigFragment();
+                selectedFragment = new InicioFragment(); // Placeholder
             }
 
             if (selectedFragment != null) {
