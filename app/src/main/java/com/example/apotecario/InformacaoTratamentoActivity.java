@@ -2,6 +2,7 @@ package com.example.apotecario;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -86,8 +87,9 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
                 tvQuantidade.setText(String.valueOf(quantidade));
             }
         });
-            quantidade++;
+
         btnMais.setOnClickListener(v -> {
+            quantidade++;
             tvQuantidade.setText(String.valueOf(quantidade));
         });
 
@@ -102,7 +104,9 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         findViewById(R.id.btnVoltar).setOnClickListener(v -> finish());
 
         findViewById(R.id.btnProximo).setOnClickListener(v -> {
-            // Tela de estoque
+            // Navega para a tela de estoque
+            Intent intent = new Intent(this, EstoqueMedicamentoActivity.class);
+            startActivity(intent);
         });
     }
 
