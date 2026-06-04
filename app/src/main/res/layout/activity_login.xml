@@ -95,7 +95,7 @@
         app:layout_constraintTop_toBottomOf="@+id/ed_email" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_entrar"
         android:layout_width="302dp"
         android:layout_height="58dp"
         android:layout_marginTop="36dp"
@@ -118,8 +118,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_weight="1"
         android:gravity="center"
-
-        app:layout_constraintTop_toBottomOf="@+id/button"
+        app:layout_constraintTop_toBottomOf="@+id/btn_entrar"
         app:layout_constraintVertical_bias="0.571">
 
         <TextView
@@ -131,7 +130,7 @@
             android:textSize="15sp" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/btn_registrar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/inter_semibold"

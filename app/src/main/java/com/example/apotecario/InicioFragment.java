@@ -1,5 +1,6 @@
 package com.example.apotecario;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,8 +34,10 @@ public class InicioFragment extends Fragment {
         bottomSheetDialog.setContentView(view);
         
         view.findViewById(R.id.cardAddMedicamento).setOnClickListener(v -> {
-            // Ação de exemplo
             bottomSheetDialog.dismiss();
+            // Abre a tela de busca de medicamentos
+            Intent intent = new Intent(getActivity(), BuscaMedicamentoActivity.class);
+            startActivity(intent);
         });
 
         bottomSheetDialog.show();

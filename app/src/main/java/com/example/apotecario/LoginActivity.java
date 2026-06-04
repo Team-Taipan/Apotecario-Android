@@ -3,6 +3,7 @@ package com.example.apotecario;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,10 +24,18 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        Button btnEntrar = findViewById(R.id.button);
+        Button btnEntrar = findViewById(R.id.btn_entrar);
+        TextView btnRegistrar = findViewById(R.id.btn_registrar); // Corrigido para TextView
+
         btnEntrar.setOnClickListener(v -> {
             // Após o login, abre a tela de Criar Perfil
             Intent intent = new Intent(LoginActivity.this, CriarPerfilActivity.class);
+            startActivity(intent);
+        });
+
+        btnRegistrar.setOnClickListener(v -> {
+            // Abre a tela de Registro
+            Intent intent = new Intent(LoginActivity.this, RegistroActivity.class);
             startActivity(intent);
         });
     }
