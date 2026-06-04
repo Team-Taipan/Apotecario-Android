@@ -25,7 +25,6 @@
         android:layout_width="414dp"
         android:layout_height="542dp"
         android:background="#C8E3E0"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -58,17 +57,18 @@
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/ed_email"
         android:layout_width="326dp"
         android:layout_height="54dp"
         android:layout_marginTop="32dp"
         android:width="300sp"
-        android:background="@color/cardview_light_background"
-        android:ems="10"
+        android:background="@drawable/bg_edittext"
+        android:elevation="2dp"
         android:fontFamily="@font/inter_medium"
-        android:inputType="textEmailAddress"
-        android:paddingLeft="10sp"
-        android:text="exemplo@gmail.com"
+        android:hint="Email"
+        android:inputType="textPersonName"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layout_constraintCircleRadius="100sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -76,22 +76,23 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/ed_senha"
         android:layout_width="326dp"
         android:layout_height="54dp"
         android:layout_marginTop="32dp"
         android:width="300sp"
-        android:background="@color/cardview_light_background"
-        android:ems="10"
+        android:background="@drawable/bg_edittext"
+        android:elevation="2dp"
         android:fontFamily="@font/inter_medium"
+        android:hint="Senha"
         android:inputType="textPassword"
-        android:paddingLeft="10sp"
-        android:text="******"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layout_constraintCircleRadius="100sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/ed_email" />
 
     <Button
         android:id="@+id/button"
@@ -105,7 +106,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+        app:layout_constraintTop_toBottomOf="@+id/ed_senha" />
 
     <LinearLayout
         android:layout_width="367dp"

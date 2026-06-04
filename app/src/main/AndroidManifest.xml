@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Apotecario">
         <activity
+            android:name=".CriarPerfilActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity

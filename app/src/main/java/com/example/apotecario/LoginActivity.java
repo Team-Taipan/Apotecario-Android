@@ -1,6 +1,8 @@
 package com.example.apotecario;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,13 @@ public class LoginActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        Button btnEntrar = findViewById(R.id.button);
+        btnEntrar.setOnClickListener(v -> {
+            // Após o login, abre a tela de Criar Perfil
+            Intent intent = new Intent(LoginActivity.this, CriarPerfilActivity.class);
+            startActivity(intent);
         });
     }
 }
