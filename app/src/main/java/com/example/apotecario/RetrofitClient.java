@@ -9,7 +9,7 @@ public class RetrofitClient {
     
     // Se estiver usando EMULADOR, use: http://10.0.2.2:4000/
     // Se estiver usando CELULAR FÍSICO, use o IP da sua máquina: http://192.168.x.x:4000/
-    private static final String BASE_URL = "http://10.0.2.2:4000/";
+    private static final String BASE_URL = "http://192.168.x.x:4000/";
 
     public static ApiService getApiService() {
         if (retrofit == null) {

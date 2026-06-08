@@ -1,7 +1,7 @@
 package com.example.apotecario;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,10 +18,16 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class GerenciarPerfilActivity extends AppCompatActivity {
 
     private ImageView ivAvatar;
     private ActivityResultLauncher<String> galleryLauncher;
+    private EditText etNomeCompleto, etParentesco;
+    private String nomeOriginal; // Usado como ID para o PUT/DELETE
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +43,17 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
 
         ivAvatar = findViewById(R.id.ivAvatar);
         FloatingActionButton fabAddPhoto = findViewById(R.id.fabAddPhoto);
-        EditText etNomeCompleto = findViewById(R.id.etNomeCompleto);
-        EditText etParentesco = findViewById(R.id.etParentesco);
+        etNomeCompleto = findViewById(R.id.etNomeCompleto);
+        etParentesco = findViewById(R.id.etParentesco);
         Button btnConfirmar = findViewById(R.id.btnConfirmar);
         Button btnExcluirPerfil = findViewById(R.id.btnExcluirPerfil);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
 
-        // Configura o launcher para abrir a galeria (reutilizando a lógica anterior)
+        // Simulando o recebimento de dados (futuramente viria por Intent)
+        nomeOriginal = "Otavio"; 
+        etNomeCompleto.setText(nomeOriginal);
+        etParentesco.setText("Pai");
+
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -60,19 +70,61 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         btnVoltar.setOnClickListener(v -> finish());
 
         btnConfirmar.setOnClickListener(v -> {
-            String nome = etNomeCompleto.getText().toString();
-            if (nome.isEmpty()) {
-                Toast.makeText(this, "Por favor, insira o nome", Toast.LENGTH_SHORT).show();
+            String novoNome = etNomeCompleto.getText().toString();
+            String novoParentesco = etParentesco.getText().toString();
+            
+            if (novoNome.isEmpty()) {
+                Toast.makeText(this, "O nome não pode estar vazio", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Alterações salvas!", Toast.LENGTH_SHORT).show();
-                finish();
+                atualizarPerfilNaAPI(novoNome, novoParentesco);
             }
         });
 
         btnExcluirPerfil.setOnClickListener(v -> {
-            // Lógica para excluir perfil
-            Toast.makeText(this, "Perfil excluído!", Toast.LENGTH_SHORT).show();
-            finish();
+            excluirPerfilNaAPI();
+        });
+    }
+
+    private void atualizarPerfilNaAPI(String nome, String parentesco) {
+        Perfil perfilEditado = new Perfil(nome, parentesco, android.R.drawable.ic_menu_gallery, true);
+
+        RetrofitClient.getApiService().atualizarPerfil(nomeOriginal, perfilEditado).enqueue(new Callback<Perfil>() {
+            @Override
+            public void onResponse(Call<Perfil> call, Response<Perfil> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(GerenciarPerfilActivity.this, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(GerenciarPerfilActivity.this, "Erro ao atualizar perfil", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Perfil> call, Throwable t) {
+                Log.e("API_ERROR", "Erro: " + t.getMessage());
+                Toast.makeText(GerenciarPerfilActivity.this, "Falha na conexão", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void excluirPerfilNaAPI() {
+        // Alterado para deletarPerfil para corresponder ao método definido na interface ApiService
+        RetrofitClient.getApiService().deletarPerfil(nomeOriginal).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(GerenciarPerfilActivity.this, "Perfil excluído!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(GerenciarPerfilActivity.this, "Erro ao excluir", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("API_ERROR", "Erro: " + t.getMessage());
+                Toast.makeText(GerenciarPerfilActivity.this, "Erro de rede", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }
