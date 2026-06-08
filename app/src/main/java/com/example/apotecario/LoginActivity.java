@@ -23,6 +23,7 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText edEmail, edSenha;
+    private TokenManager tokenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
+        tokenManager = new TokenManager(this);
         edEmail = findViewById(R.id.ed_email);
         edSenha = findViewById(R.id.ed_senha);
         Button btnEntrar = findViewById(R.id.btn_entrar);
@@ -66,7 +68,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, String> dados = response.body();
+                    String token = dados.get("token");
                     String ultimoLogin = dados.get("ultimoLogin");
+
+                    if (token != null) {
+                        tokenManager.saveToken(token);
+                    }
 
                     Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
 
