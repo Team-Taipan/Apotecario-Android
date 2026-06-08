@@ -19,14 +19,29 @@
             android:textColor="#1A1C1E"
             android:textSize="20sp" />
 
-        <ImageButton
-            android:id="@+id/btnClosePerfilModal"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            app:tint="#1A1C1E" />
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnAddNovoPerfil"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_input_add"
+                app:tint="#2D7A6E" />
+
+            <ImageButton
+                android:id="@+id/btnClosePerfilModal"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="#1A1C1E" />
+        </LinearLayout>
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

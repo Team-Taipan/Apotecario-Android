@@ -32,15 +32,12 @@ public class InicioFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inicio, container, false);
 
-        // Referências
         tvUserName = view.findViewById(R.id.tvUserName);
         rvMedicamentosAtivos = view.findViewById(R.id.rvMedicamentosAtivos);
         FloatingActionButton fab = view.findViewById(R.id.fabAddInicio);
 
-        // Configurar clique no nome para abrir seleção de perfil
         tvUserName.setOnClickListener(v -> showSelecionarPerfilModal());
 
-        // Configurar RecyclerView de Medicamentos
         rvMedicamentosAtivos.setLayoutManager(new LinearLayoutManager(getContext()));
         List<MedicamentoAtivo> listaMed = new ArrayList<>();
         listaMed.add(new MedicamentoAtivo("Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
@@ -55,16 +52,15 @@ public class InicioFragment extends Fragment {
     }
 
     private void showSelecionarPerfilModal() {
-        if (getContext() == null) return;
+        if (getActivity() == null) return;
 
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getActivity());
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_selecionar_perfil, null);
         bottomSheetDialog.setContentView(view);
 
         RecyclerView rvPerfis = view.findViewById(R.id.rvPerfis);
         rvPerfis.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // Dados simulados de perfis (viriam da API/Banco)
         List<Perfil> listaPerfis = new ArrayList<>();
         listaPerfis.add(new Perfil("Otavio", android.R.drawable.ic_menu_gallery, true));
         listaPerfis.add(new Perfil("Mariana", android.R.drawable.ic_menu_gallery, false));
@@ -78,24 +74,39 @@ public class InicioFragment extends Fragment {
 
         rvPerfis.setAdapter(perfilAdapter);
 
+        // Botão de Adicionar Novo Perfil (+)
+        View btnAdd = view.findViewById(R.id.btnAddNovoPerfil);
+        if (btnAdd != null) {
+            btnAdd.setOnClickListener(v -> {
+                bottomSheetDialog.dismiss();
+                // Usando Intent com o contexto da Activity principal
+                Intent intent = new Intent(getActivity(), NovoPerfilActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Botão Gerenciar Perfil
+        view.findViewById(R.id.btnGerenciarPerfil).setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Intent intent = new Intent(getActivity(), GerenciarPerfilActivity.class);
+            startActivity(intent);
+        });
+
         view.findViewById(R.id.btnClosePerfilModal).setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         bottomSheetDialog.show();
     }
 
     private void showAddOptionsDialog() {
-        if (getContext() == null) return;
-        
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+        if (getActivity() == null) return;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getActivity());
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_add_options, null);
         bottomSheetDialog.setContentView(view);
-        
         view.findViewById(R.id.cardAddMedicamento).setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             Intent intent = new Intent(getActivity(), BuscaMedicamentoActivity.class);
             startActivity(intent);
         });
-
         bottomSheetDialog.show();
     }
 }
