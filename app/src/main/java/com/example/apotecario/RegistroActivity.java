@@ -88,11 +88,7 @@ public class RegistroActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(RegistroActivity.this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show();
-
-                    // Novos usuários devem criar um perfil após o registro
-                    Intent intent = new Intent(RegistroActivity.this, CriarPerfilActivity.class);
-                    startActivity(intent);
+                    Toast.makeText(RegistroActivity.this, "Conta criada com sucesso! Faça login para continuar.", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
                     // Trata erros comuns do servidor

@@ -65,10 +65,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Map<String, String> dados = response.body();
+                    String ultimoLogin = dados.get("ultimoLogin");
+
                     Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
-                    
-                    // Usuários que já possuem conta vão direto para a MainActivity
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
+                    Intent intent;
+                    // Se ultimoLogin for nulo, vai para Criar Perfil
+                    if (ultimoLogin == null || ultimoLogin.isEmpty() || ultimoLogin.equals("null")) {
+                        intent = new Intent(LoginActivity.this, CriarPerfilActivity.class);
+                    } else {
+                        intent = new Intent(LoginActivity.this, MainActivity.class);
+                    }
+
                     startActivity(intent);
                     finish();
                 } else {
