@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,29 +25,62 @@ public class InicioFragment extends Fragment {
 
     private RecyclerView rvMedicamentosAtivos;
     private MedicamentoAtivoAdapter adapter;
+    private TextView tvUserName;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inicio, container, false);
 
-        // Inicializar RecyclerView
+        // Referências
+        tvUserName = view.findViewById(R.id.tvUserName);
         rvMedicamentosAtivos = view.findViewById(R.id.rvMedicamentosAtivos);
+        FloatingActionButton fab = view.findViewById(R.id.fabAddInicio);
+
+        // Configurar clique no nome para abrir seleção de perfil
+        tvUserName.setOnClickListener(v -> showSelecionarPerfilModal());
+
+        // Configurar RecyclerView de Medicamentos
         rvMedicamentosAtivos.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // Simulação de dados do banco de dados
-        List<MedicamentoAtivo> lista = new ArrayList<>();
-        lista.add(new MedicamentoAtivo("Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
-        lista.add(new MedicamentoAtivo("Dipirona", "5 gotas", "09:00", android.R.drawable.ic_menu_help));
-        lista.add(new MedicamentoAtivo("Paracetamol", "1 comprimido", "12:00", android.R.drawable.ic_menu_edit));
-
-        adapter = new MedicamentoAtivoAdapter(lista);
+        List<MedicamentoAtivo> listaMed = new ArrayList<>();
+        listaMed.add(new MedicamentoAtivo("Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
+        listaMed.add(new MedicamentoAtivo("Dipirona", "5 gotas", "09:00", android.R.drawable.ic_menu_help));
+        listaMed.add(new MedicamentoAtivo("Paracetamol", "1 comprimido", "12:00", android.R.drawable.ic_menu_edit));
+        adapter = new MedicamentoAtivoAdapter(listaMed);
         rvMedicamentosAtivos.setAdapter(adapter);
 
-        FloatingActionButton fab = view.findViewById(R.id.fabAddInicio);
         fab.setOnClickListener(v -> showAddOptionsDialog());
 
         return view;
+    }
+
+    private void showSelecionarPerfilModal() {
+        if (getContext() == null) return;
+
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_selecionar_perfil, null);
+        bottomSheetDialog.setContentView(view);
+
+        RecyclerView rvPerfis = view.findViewById(R.id.rvPerfis);
+        rvPerfis.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        // Dados simulados de perfis (viriam da API/Banco)
+        List<Perfil> listaPerfis = new ArrayList<>();
+        listaPerfis.add(new Perfil("Otavio", android.R.drawable.ic_menu_gallery, true));
+        listaPerfis.add(new Perfil("Mariana", android.R.drawable.ic_menu_gallery, false));
+        listaPerfis.add(new Perfil("Ricardo", android.R.drawable.ic_menu_gallery, false));
+        listaPerfis.add(new Perfil("Carla", android.R.drawable.ic_menu_gallery, false));
+
+        PerfilAdapter perfilAdapter = new PerfilAdapter(listaPerfis, perfil -> {
+            tvUserName.setText(perfil.getNome());
+            bottomSheetDialog.dismiss();
+        });
+
+        rvPerfis.setAdapter(perfilAdapter);
+
+        view.findViewById(R.id.btnClosePerfilModal).setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        bottomSheetDialog.show();
     }
 
     private void showAddOptionsDialog() {
