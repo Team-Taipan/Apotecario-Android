@@ -78,6 +78,8 @@ public class InicioFragment extends Fragment {
 
             @Override
             public void onTomarClick(MedicamentoAtivo medicamento) {
+                medicamento.setTomado(true);
+                adapter.notifyDataSetChanged();
                 Toast.makeText(getContext(), "Medicamento tomado: " + medicamento.getNome(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -260,6 +262,8 @@ public class InicioFragment extends Fragment {
 
                     @Override
                     public void onTomarClick(MedicamentoAtivo medicamento) {
+                        medicamento.setTomado(true);
+                        adapter.notifyDataSetChanged();
                         Toast.makeText(getContext(), "Medicamento " + medicamento.getNome() + " marcado como tomado!", Toast.LENGTH_SHORT).show();
                     }
                 });

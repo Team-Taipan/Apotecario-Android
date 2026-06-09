@@ -6,6 +6,7 @@ public class MedicamentoAtivo {
     private String dose;
     private String horario;
     private int iconeRes;
+    private boolean tomado;
 
     public MedicamentoAtivo(Integer id, String nome, String dose, String horario, int iconeRes) {
         this.id = id;
@@ -13,6 +14,7 @@ public class MedicamentoAtivo {
         this.dose = dose;
         this.horario = horario;
         this.iconeRes = iconeRes;
+        this.tomado = false;
     }
 
     public Integer getId() {
@@ -33,5 +35,13 @@ public class MedicamentoAtivo {
 
     public int getIconeRes() {
         return iconeRes;
+    }
+
+    public boolean isTomado() {
+        return tomado;
+    }
+
+    public void setTomado(boolean tomado) {
+        this.tomado = tomado;
     }
 }

@@ -17,6 +17,9 @@
         android:usesCleartextTraffic="true">
 
         <activity
+            android:name=".CadastrarMedicamentoActivity"
+            android:exported="false" />
+        <activity
             android:name=".NovoPerfilActivity"
             android:exported="false" />
         <activity

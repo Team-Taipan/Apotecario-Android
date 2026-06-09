@@ -41,23 +41,39 @@ public class MedicamentoAtivoAdapter extends RecyclerView.Adapter<MedicamentoAti
         holder.tvDose.setText(med.getDose());
         holder.ivIcone.setImageResource(med.getIconeRes());
 
-        holder.itemView.findViewById(R.id.btnTomarItem).setOnClickListener(v -> {
-            if (listener != null) listener.onTomarClick(med);
-        });
+        View btnTomar = holder.itemView.findViewById(R.id.btnTomarItem);
 
-        holder.itemView.setOnLongClickListener(v -> {
-            if (listener != null) {
-                listener.onMedicamentoLongClick(med);
-                return true;
-            }
-            return false;
-        });
+        if (med.isTomado()) {
+            holder.itemView.setAlpha(0.5f);
+            holder.itemView.setEnabled(false);
+            btnTomar.setEnabled(false);
+            btnTomar.setAlpha(0.5f);
+            
+            // Remove listeners
+            holder.itemView.setOnClickListener(null);
+            holder.itemView.setOnLongClickListener(null);
+        } else {
+            holder.itemView.setAlpha(1.0f);
+            holder.itemView.setEnabled(true);
+            btnTomar.setEnabled(true);
+            btnTomar.setAlpha(1.0f);
 
-        // Também permitir clique simples para abrir opções se preferir,
-        // mas o usuário pediu "ao clicar", então vamos usar o clique normal para abrir o menu.
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onMedicamentoLongClick(med);
-        });
+            btnTomar.setOnClickListener(v -> {
+                if (listener != null) listener.onTomarClick(med);
+            });
+
+            holder.itemView.setOnLongClickListener(v -> {
+                if (listener != null) {
+                    listener.onMedicamentoLongClick(med);
+                    return true;
+                }
+                return false;
+            });
+
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) listener.onMedicamentoLongClick(med);
+            });
+        }
     }
 
     @Override

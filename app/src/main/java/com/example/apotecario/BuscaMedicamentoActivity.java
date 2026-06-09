@@ -95,7 +95,8 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
 
         // Cadastrar medicamento manual (caso não encontre na ANVISA)
         tvCadastreAqui.setOnClickListener(v -> {
-            Toast.makeText(this, "Funcionalidade de cadastro manual em breve!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, CadastrarMedicamentoActivity.class);
+            startActivity(intent);
         });
     }
 

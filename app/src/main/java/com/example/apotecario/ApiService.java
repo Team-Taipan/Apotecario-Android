@@ -22,7 +22,10 @@ public interface ApiService {
 
     // Cria um medicamento personalizado
     @POST("medicamento")
-    Call<Medicamento> criarMedicamento(@Body Medicamento medicamento);
+    Call<Medicamento> criarMedicamento(
+            @Query("perfilId") Integer perfilId,
+            @Body Medicamento medicamento
+    );
 
     // Edita um medicamento personalizado
     @PATCH("medicamento/{id}")
