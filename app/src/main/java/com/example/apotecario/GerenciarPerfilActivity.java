@@ -1,6 +1,7 @@
 package com.example.apotecario;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,11 +10,20 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class GerenciarPerfilActivity extends AppCompatActivity {
 
     private EditText etNomeCompleto, etParentesco;
     private Button btnConfirmar, btnExcluirPerfil;
     private ImageButton btnVoltar;
+
+    // 🔥 IMPORTANTE: Retrofit espera String
+    private String idPerfil;
+    private String tipoPerfil;
+    private String nomePerfil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,32 +36,133 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         btnExcluirPerfil = findViewById(R.id.btnExcluirPerfil);
         btnVoltar = findViewById(R.id.btnVoltar);
 
-        // Dados vindos da Intent
-        String nomePerfil = getIntent().getStringExtra("NOME_PERFIL");
-        String tipoPerfil = getIntent().getStringExtra("TIPO_PERFIL");
+        // 🔥 Dados vindos da Intent
+        idPerfil = getIntent().getStringExtra("ID_PERFIL");
+        nomePerfil = getIntent().getStringExtra("NOME_PERFIL");
+        tipoPerfil = getIntent().getStringExtra("TIPO_PERFIL");
 
-        // Preenche nome sempre que abrir o perfil
+        // 🔴 validação obrigatória
+        if (idPerfil == null || idPerfil.isEmpty()) {
+            Toast.makeText(this, "Erro: ID do perfil inválido", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         if (nomePerfil != null) {
             etNomeCompleto.setText(nomePerfil);
         }
 
-        // Aplica a regra ao abrir corrigindo o bug de só funcionar depois de mudar e voltar do perfil
         aplicarRegraTipoPerfil(tipoPerfil);
 
         btnVoltar.setOnClickListener(v -> finish());
 
-        btnConfirmar.setOnClickListener(v ->
-                Toast.makeText(this, "Alterações salvas!", Toast.LENGTH_SHORT).show()
-        );
+        btnConfirmar.setOnClickListener(v -> salvarAlteracoes());
 
-        btnExcluirPerfil.setOnClickListener(v ->
-                Toast.makeText(this, "Perfil excluído!", Toast.LENGTH_SHORT).show()
-        );
+        btnExcluirPerfil.setOnClickListener(v -> excluirPerfil());
     }
 
+    // =====================================================
+    // 🔥 UPDATE PERFIL
+    // =====================================================
+    private void salvarAlteracoes() {
+
+        String novoNome = etNomeCompleto.getText().toString().trim();
+
+        if (novoNome.isEmpty()) {
+            Toast.makeText(this, "Nome não pode ser vazio", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Perfil perfilEditado = new Perfil(
+                novoNome,
+                "avatar_1.png",
+                tipoPerfil != null ? tipoPerfil : "Dependente",
+                null,
+                "Admin"
+        );
+
+        ApiService api = RetrofitClient.getApiServiceWithToken(this);
+
+        api.atualizarPerfil(idPerfil, perfilEditado).enqueue(new Callback<Perfil>() {
+
+            @Override
+            public void onResponse(Call<Perfil> call, Response<Perfil> response) {
+
+                if (response.isSuccessful()) {
+                    Toast.makeText(GerenciarPerfilActivity.this,
+                            "Perfil atualizado com sucesso!",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+
+                } else {
+                    Log.e("API_ERROR", "Erro HTTP: " + response.code());
+
+                    try {
+                        Log.e("API_ERROR", "BODY: " + response.errorBody().string());
+                    } catch (Exception e) {
+                        Log.e("API_ERROR", "Erro ao ler body");
+                    }
+
+                    Toast.makeText(GerenciarPerfilActivity.this,
+                            "Erro ao atualizar perfil",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Perfil> call, Throwable t) {
+                Log.e("API_ERROR", "Falha rede: " + t.getMessage());
+
+                Toast.makeText(GerenciarPerfilActivity.this,
+                        "Erro de conexão",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // =====================================================
+    // 🔥 DELETE PERFIL
+    // =====================================================
+    private void excluirPerfil() {
+
+        ApiService api = RetrofitClient.getApiServiceWithToken(this);
+
+        api.deletarPerfil(idPerfil).enqueue(new Callback<Void>() {
+
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+
+                if (response.isSuccessful()) {
+                    Toast.makeText(GerenciarPerfilActivity.this,
+                            "Perfil excluído com sucesso!",
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+
+                } else {
+                    Log.e("API_ERROR", "Erro delete HTTP: " + response.code());
+
+                    Toast.makeText(GerenciarPerfilActivity.this,
+                            "Erro ao excluir perfil",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("API_ERROR", "Falha rede: " + t.getMessage());
+
+                Toast.makeText(GerenciarPerfilActivity.this,
+                        "Erro de conexão",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // =====================================================
+    // 🔥 REGRA DE UI (Titular bloqueado)
+    // =====================================================
     private void aplicarRegraTipoPerfil(String tipoPerfil) {
 
-        // Verifica o tipo de perfil e aplica a regra de edição
         if (tipoPerfil != null && tipoPerfil.equalsIgnoreCase("Titular")) {
 
             etParentesco.setText("Titular da Conta");
@@ -65,16 +176,13 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
 
             btnExcluirPerfil.setVisibility(View.GONE);
 
-        }
-        // Se for dependente, desabilita a edição do parentesco
-        else {
+        } else {
 
             etParentesco.setText("");
 
             etParentesco.setEnabled(true);
             etParentesco.setFocusable(true);
             etParentesco.setClickable(true);
-            etParentesco.setKeyListener(null);
 
             etParentesco.setAlpha(1f);
 
