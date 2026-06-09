@@ -1,14 +1,15 @@
 package com.example.apotecario;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Medicamento {
+
+    @SerializedName("med_nome")
     private String nome;
+
     private int iconeRes;
 
-    public Medicamento() {}
-
-    public Medicamento(String nome, int iconeRes) {
-        this.nome = nome;
-        this.iconeRes = iconeRes;
+    public Medicamento() {
     }
 
     public String getNome() {
@@ -20,9 +21,8 @@ public class Medicamento {
     }
 
     public int getIconeRes() {
-        // Se for 0, retorna um ícone padrão
         if (iconeRes == 0) {
-            return android.R.drawable.ic_menu_edit; 
+            return android.R.drawable.ic_menu_edit;
         }
         return iconeRes;
     }

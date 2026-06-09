@@ -18,7 +18,7 @@ public interface ApiService {
     
     // Busca medicamentos na base da ANVISA
     @GET("medicamento/anvisa")
-    Call<List<Medicamento>> getMedicamentosAnvisa(
+    Call<MedicamentoResponse> getMedicamentosAnvisa(
             @Query("nome") String nome,
             @Query("pagina") Integer pagina
     );

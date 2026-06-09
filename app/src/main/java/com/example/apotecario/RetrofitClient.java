@@ -12,7 +12,7 @@ public class RetrofitClient {
 
     private static Retrofit retrofit = null;
     // Se mudar de rede, lembre-se de atualizar este IP
-    private static final String BASE_URL = "http://192.168.2.104:4000/";
+    private static final String BASE_URL = "http://192.168.x.x:4000/";
 
     public static ApiService getApiService() {
         if (retrofit == null) {

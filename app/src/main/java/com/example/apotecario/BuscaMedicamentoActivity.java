@@ -66,7 +66,8 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
         // Lógica de busca com Debounce
         etBuscaMedicamento.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -88,7 +89,8 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         // Cadastrar medicamento manual (caso não encontre na ANVISA)
@@ -102,26 +104,27 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
         ApiService api = RetrofitClient.getApiServiceWithToken(this);
 
         // Chamada para o endpoint /medicamento/anvisa?nome=...&pagina=1
-        api.getMedicamentosAnvisa(nome, 1).enqueue(new Callback<List<Medicamento>>() {
+        api.getMedicamentosAnvisa(nome, 1).enqueue(new Callback<MedicamentoResponse>() {
+
             @Override
-            public void onResponse(Call<List<Medicamento>> call, Response<List<Medicamento>> response) {
+            public void onResponse(Call<MedicamentoResponse> call, Response<MedicamentoResponse> response) {
+
                 if (response.isSuccessful() && response.body() != null) {
+
                     listaMedicamentos.clear();
-                    listaMedicamentos.addAll(response.body());
+                    listaMedicamentos.addAll(response.body().getData());
                     adapter.notifyDataSetChanged();
 
-                    if (listaMedicamentos.isEmpty()) {
-                        Toast.makeText(BuscaMedicamentoActivity.this, "Nenhum medicamento encontrado", Toast.LENGTH_SHORT).show();
-                    }
                 } else {
-                    Log.e("API_ERROR", "Erro ao buscar: " + response.code());
+                    Log.e("API_ERROR", "Erro: " + response.code());
                 }
-
             }
 
             @Override
-            public void onFailure(Call<List<Medicamento>> call, Throwable t) {
-                Log.e("API_ERROR", "Falha na conexão: " + t.getMessage());
+            public void onFailure(Call<MedicamentoResponse> call, Throwable t) {
+
+                Log.e("API_ERROR", "Falha: ", t);
+
                 Toast.makeText(BuscaMedicamentoActivity.this, "Erro de conexão com o servidor", Toast.LENGTH_SHORT).show();
             }
         });
