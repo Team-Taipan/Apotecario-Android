@@ -146,12 +146,25 @@ public class InicioFragment extends Fragment {
             bottomSheetDialog.dismiss();
             SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-            int id = prefs.getInt(KEY_PERFIL_ID, -1);
+            int id = -1;
+            try {
+                id = prefs.getInt(KEY_PERFIL_ID, -1);
+            } catch (ClassCastException e) {
+                String idStr = prefs.getString(KEY_PERFIL_ID, null);
+                if (idStr != null) {
+                    try {
+                        id = Integer.parseInt(idStr);
+                    } catch (NumberFormatException nfe) {
+                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + idStr);
+                    }
+                }
+            }
+
             String nome = prefs.getString(KEY_PERFIL_NOME, "");
             String tipo = prefs.getString(KEY_PERFIL_TIPO, "Dependente");
 
             Intent intent = new Intent(getActivity(), GerenciarPerfilActivity.class);
-            intent.putExtra("ID_PERFIL", id);
+            intent.putExtra("ID_PERFIL", String.valueOf(id));
             intent.putExtra("NOME_PERFIL", nome);
             intent.putExtra("TIPO_PERFIL", tipo);
             startActivity(intent);

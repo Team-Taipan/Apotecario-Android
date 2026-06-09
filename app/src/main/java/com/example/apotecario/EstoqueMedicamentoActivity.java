@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class EstoqueMedicamentoActivity extends AppCompatActivity {
 
@@ -133,7 +135,19 @@ public class EstoqueMedicamentoActivity extends AppCompatActivity {
 
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-            int perfilId = prefs.getInt(KEY_PERFIL_ID, -1);
+            int perfilId = -1;
+            try {
+                perfilId = prefs.getInt(KEY_PERFIL_ID, -1);
+            } catch (ClassCastException e) {
+                String perfilIdStr = prefs.getString(KEY_PERFIL_ID, null);
+                if (perfilIdStr != null) {
+                    try {
+                        perfilId = Integer.parseInt(perfilIdStr);
+                    } catch (NumberFormatException nfe) {
+                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + perfilIdStr);
+                    }
+                }
+            }
 
             if (perfilId == -1) {
 
@@ -185,15 +199,24 @@ public class EstoqueMedicamentoActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
 
+                    Log.d("TRATAMENTO", "HTTP " + response.code());
+
                     if (response.isSuccessful()) {
+
                         Toast.makeText(EstoqueMedicamentoActivity.this, "Tratamento salvo com sucesso!", Toast.LENGTH_LONG).show();
+
                         Intent intent = new Intent(EstoqueMedicamentoActivity.this, MainActivity.class);
+
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
                         startActivity(intent);
                         finish();
-
                     } else {
-                        Toast.makeText(EstoqueMedicamentoActivity.this, "Erro " + response.code(), Toast.LENGTH_LONG).show();
+                        try {
+                            Log.e("TRATAMENTO", response.errorBody() != null ? response.errorBody().string() : "Sem corpo de erro");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
