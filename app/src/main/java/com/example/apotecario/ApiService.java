@@ -40,6 +40,11 @@ public interface ApiService {
             @Body CriarTratamentoRequest request
     );
 
+    @GET("tratamento")
+    Call<List<TratamentoResponse>> listarTratamentos(
+            @Query("perfilId") Integer perfilId
+    );
+
     // --- Contas e Usuários ---
 
     // Cadastro de nova conta

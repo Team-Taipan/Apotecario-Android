@@ -139,12 +139,12 @@ public class EstoqueMedicamentoActivity extends AppCompatActivity {
             try {
                 perfilId = prefs.getInt(KEY_PERFIL_ID, -1);
             } catch (ClassCastException e) {
-                String perfilIdStr = prefs.getString(KEY_PERFIL_ID, null);
-                if (perfilIdStr != null) {
+                Object val = prefs.getAll().get(KEY_PERFIL_ID);
+                if (val instanceof String) {
                     try {
-                        perfilId = Integer.parseInt(perfilIdStr);
+                        perfilId = Integer.parseInt((String) val);
                     } catch (NumberFormatException nfe) {
-                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + perfilIdStr);
+                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + val);
                     }
                 }
             }

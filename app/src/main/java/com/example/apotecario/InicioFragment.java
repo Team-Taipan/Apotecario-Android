@@ -59,7 +59,7 @@ public class InicioFragment extends Fragment {
         tvUserName.setOnClickListener(v -> showSelecionarPerfilModal());
         fab.setOnClickListener(v -> showAddOptionsDialog());
 
-        carregarMedicamentosExemplo();
+        carregarTratamentos();
         atualizarNomePerfilAtual();
 
         return view;
@@ -123,6 +123,8 @@ public class InicioFragment extends Fragment {
                         editor.putString(KEY_PERFIL_TIPO, perfil.getTipo());
                         editor.apply();
 
+                        carregarTratamentos();
+
                         bottomSheetDialog.dismiss();
                     });
                     rvPerfis.setAdapter(adapter);
@@ -150,12 +152,12 @@ public class InicioFragment extends Fragment {
             try {
                 id = prefs.getInt(KEY_PERFIL_ID, -1);
             } catch (ClassCastException e) {
-                String idStr = prefs.getString(KEY_PERFIL_ID, null);
-                if (idStr != null) {
+                Object val = prefs.getAll().get(KEY_PERFIL_ID);
+                if (val instanceof String) {
                     try {
-                        id = Integer.parseInt(idStr);
+                        id = Integer.parseInt((String) val);
                     } catch (NumberFormatException nfe) {
-                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + idStr);
+                        Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + val);
                     }
                 }
             }
@@ -185,5 +187,69 @@ public class InicioFragment extends Fragment {
             startActivity(new Intent(getActivity(), BuscaMedicamentoActivity.class));
         });
         bottomSheetDialog.show();
+    }
+
+    private void carregarTratamentos() {
+
+        SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        int perfilId = -1;
+        try {
+            perfilId = prefs.getInt(KEY_PERFIL_ID, -1);
+        } catch (ClassCastException e) {
+            Object val = prefs.getAll().get(KEY_PERFIL_ID);
+            if (val instanceof String) {
+                try {
+                    perfilId = Integer.parseInt((String) val);
+                } catch (NumberFormatException nfe) {
+                    Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + val);
+                }
+            }
+        }
+
+        if (perfilId == -1) {
+            return;
+        }
+
+        ApiService api = RetrofitClient.getApiServiceWithToken(getContext());
+
+        api.listarTratamentos(perfilId).enqueue(new Callback<List<TratamentoResponse>>() {
+
+            @Override
+            public void onResponse(Call<List<TratamentoResponse>> call, Response<List<TratamentoResponse>> response) {
+
+                if (!response.isSuccessful() || response.body() == null) {
+                    return;
+                }
+
+                List<MedicamentoAtivo> lista = new ArrayList<>();
+
+                for (TratamentoResponse tratamento : response.body()) {
+
+                    String nome = tratamento.getMedicamento() != null ? tratamento.getMedicamento().getNome() : "Medicamento";
+
+                    String dose = tratamento.getQtdPorDose() + " unidade(s)";
+
+                    String horario = "--:--";
+
+                    if (tratamento.getFrequencia() != null && tratamento.getFrequencia().getHorarios() != null && !tratamento.getFrequencia().getHorarios().isEmpty()) {
+
+                        horario = tratamento.getFrequencia().getHorarios().get(0).getHora();
+                    }
+
+                    lista.add(new MedicamentoAtivo(nome, dose, horario, android.R.drawable.ic_menu_info_details));
+                }
+
+                adapter = new MedicamentoAtivoAdapter(lista);
+
+                rvMedicamentosAtivos.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(Call<List<TratamentoResponse>> call, Throwable t) {
+
+                android.util.Log.e("TRATAMENTO", t.getMessage());
+            }
+        });
     }
 }
