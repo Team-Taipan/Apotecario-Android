@@ -27,6 +27,7 @@ public class NovoPerfilActivity extends AppCompatActivity {
     private ImageView ivAvatar;
     private ActivityResultLauncher<String> galleryLauncher;
     private EditText etNomeCompleto, etParentesco;
+    private String selectedAvatarName = "avatar_2.png"; // Placeholder
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class NovoPerfilActivity extends AppCompatActivity {
                     if (uri != null) {
                         ivAvatar.setImageURI(uri);
                         ivAvatar.setImageTintList(null);
+                        selectedAvatarName = "avatar_custom_dep.png";
                     }
                 }
         );
@@ -63,30 +65,51 @@ public class NovoPerfilActivity extends AppCompatActivity {
         btnVoltar.setOnClickListener(v -> finish());
 
         btnCriar.setOnClickListener(v -> {
-            String nome = etNomeCompleto.getText().toString();
-            String parentesco = etParentesco.getText().toString();
+            String nome = etNomeCompleto.getText().toString().trim();
+            String parentescoStr = etParentesco.getText().toString().trim();
 
             if (nome.isEmpty()) {
                 Toast.makeText(this, "Por favor, insira o nome", Toast.LENGTH_SHORT).show();
             } else {
-                salvarPerfilNaAPI(nome, parentesco);
+                salvarPerfilNaAPI(nome, parentescoStr);
             }
         });
     }
 
-    private void salvarPerfilNaAPI(String nome, String parentesco) {
-        // Criar o objeto de perfil para enviar
-        // Usamos um placeholder para o avatar por enquanto
-        Perfil novoPerfil = new Perfil(nome, parentesco, android.R.drawable.ic_menu_gallery, false);
+    private void salvarPerfilNaAPI(String nome, String parentescoStr) {
+        // Para perfis adicionais (Dependentes):
+        // tipo: "Dependente"
+        // papel: "Convidado"
+        // parentescoId: ID da API
 
-        RetrofitClient.getApiService().cadastrarPerfil(novoPerfil).enqueue(new Callback<Perfil>() {
+        Integer parentescoId = null;
+        // ID numérico em string
+        try {
+            if (parentescoStr != null && !parentescoStr.isEmpty()) {
+                parentescoId = Integer.parseInt(parentescoStr);
+            }
+        } catch (NumberFormatException e) {
+            parentescoId = null; // Mantém null se não for um número
+        }
+
+        // Cria um novo perfil com os dados
+        Perfil novoPerfil = new Perfil(
+                nome,
+                "avatar_2.png",
+                "Dependente",
+                parentescoId,
+                "Convidado"
+        );
+
+        // Client com Token JWT
+        RetrofitClient.getApiServiceWithToken(this).cadastrarPerfil(novoPerfil).enqueue(new Callback<Perfil>() {
             @Override
             public void onResponse(Call<Perfil> call, Response<Perfil> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(NovoPerfilActivity.this, "Novo perfil criado com sucesso!", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Toast.makeText(NovoPerfilActivity.this, "Erro ao criar perfil no servidor", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NovoPerfilActivity.this, "Erro: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

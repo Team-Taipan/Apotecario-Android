@@ -1,5 +1,6 @@
 package com.example.apotecario;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,12 +36,35 @@ public class PerfilAdapter extends RecyclerView.Adapter<PerfilAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Perfil perfil = listaPerfis.get(position);
+        Context context = holder.itemView.getContext();
+
         holder.tvNome.setText(perfil.getNome());
-        holder.ivAvatar.setImageResource(perfil.getAvatarRes());
-        
+
+        // Converte o nome da string (ex: "avatar_1.png") para o ID do drawable
+        int resId = getDrawableId(context, perfil.getAvatar());
+        if (resId != 0) {
+            holder.ivAvatar.setImageResource(resId);
+        } else {
+            // Imagem padrão caso o nome não seja encontrado
+            holder.ivAvatar.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
+
         holder.indicator.setVisibility(perfil.isSelecionado() ? View.VISIBLE : View.INVISIBLE);
 
         holder.itemView.setOnClickListener(v -> listener.onPerfilClick(perfil));
+    }
+
+    // Método auxiliar para buscar o ID do drawable pelo nome
+    private int getDrawableId(Context context, String name) {
+        if (name == null || name.isEmpty()) return 0;
+
+        // Remove extensões como .png se o backend enviar
+        String resourceName = name;
+        if (name.contains(".")) {
+            resourceName = name.substring(0, name.lastIndexOf('.'));
+        }
+
+        return context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
     }
 
     @Override
