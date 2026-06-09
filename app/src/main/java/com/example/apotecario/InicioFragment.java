@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -67,8 +68,19 @@ public class InicioFragment extends Fragment {
 
     private void carregarMedicamentosExemplo() {
         List<MedicamentoAtivo> lista = new ArrayList<>();
-        lista.add(new MedicamentoAtivo("Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
-        adapter = new MedicamentoAtivoAdapter(lista);
+        lista.add(new MedicamentoAtivo(1, "Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
+        
+        adapter = new MedicamentoAtivoAdapter(lista, new MedicamentoAtivoAdapter.OnMedicamentoClickListener() {
+            @Override
+            public void onMedicamentoLongClick(MedicamentoAtivo medicamento) {
+                mostrarOpcoesTratamento(medicamento);
+            }
+
+            @Override
+            public void onTomarClick(MedicamentoAtivo medicamento) {
+                Toast.makeText(getContext(), "Medicamento tomado: " + medicamento.getNome(), Toast.LENGTH_SHORT).show();
+            }
+        });
         rvMedicamentosAtivos.setAdapter(adapter);
     }
 
@@ -237,10 +249,20 @@ public class InicioFragment extends Fragment {
                         horario = tratamento.getFrequencia().getHorarios().get(0).getHora();
                     }
 
-                    lista.add(new MedicamentoAtivo(nome, dose, horario, android.R.drawable.ic_menu_info_details));
+                    lista.add(new MedicamentoAtivo(tratamento.getId(), nome, dose, horario, android.R.drawable.ic_menu_info_details));
                 }
 
-                adapter = new MedicamentoAtivoAdapter(lista);
+                adapter = new MedicamentoAtivoAdapter(lista, new MedicamentoAtivoAdapter.OnMedicamentoClickListener() {
+                    @Override
+                    public void onMedicamentoLongClick(MedicamentoAtivo medicamento) {
+                        mostrarOpcoesTratamento(medicamento);
+                    }
+
+                    @Override
+                    public void onTomarClick(MedicamentoAtivo medicamento) {
+                        Toast.makeText(getContext(), "Medicamento " + medicamento.getNome() + " marcado como tomado!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
                 rvMedicamentosAtivos.setAdapter(adapter);
             }
@@ -249,6 +271,69 @@ public class InicioFragment extends Fragment {
             public void onFailure(Call<List<TratamentoResponse>> call, Throwable t) {
 
                 android.util.Log.e("TRATAMENTO", t.getMessage());
+            }
+        });
+    }
+
+    private void mostrarOpcoesTratamento(MedicamentoAtivo medicamento) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(medicamento.getNome());
+        builder.setItems(new CharSequence[]{"Desvincular Tratamento", "Cancelar"}, (dialog, which) -> {
+            if (which == 0) {
+                confirmarExclusaoTratamento(medicamento);
+            }
+        });
+        builder.show();
+    }
+
+    private void confirmarExclusaoTratamento(MedicamentoAtivo medicamento) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Desvincular")
+                .setMessage("Deseja realmente remover o tratamento de " + medicamento.getNome() + "?")
+                .setPositiveButton("Sim", (dialog, which) -> deletarTratamento(medicamento.getId()))
+                .setNegativeButton("Não", null)
+                .show();
+    }
+
+    private void deletarTratamento(Integer tratamentoId) {
+        if (tratamentoId == null || getActivity() == null) return;
+
+        SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int perfilId = -1;
+        try {
+            perfilId = prefs.getInt(KEY_PERFIL_ID, -1);
+        } catch (ClassCastException e) {
+            Object val = prefs.getAll().get(KEY_PERFIL_ID);
+            if (val instanceof String) {
+                try {
+                    perfilId = Integer.parseInt((String) val);
+                } catch (NumberFormatException nfe) {
+                    Log.e("PREFS_ERROR", "Erro ao converter id_perfil_ativo: " + val);
+                }
+            }
+        }
+
+        if (perfilId == -1) {
+            Toast.makeText(getContext(), "Perfil não identificado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RetrofitClient.getApiServiceWithToken(getContext()).deletarTratamento(tratamentoId, perfilId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Tratamento removido!", Toast.LENGTH_SHORT).show();
+                    carregarTratamentos(); // Atualiza a lista
+                } else {
+                    Toast.makeText(getContext(), "Erro ao remover tratamento: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Erro de conexão", Toast.LENGTH_SHORT).show();
             }
         });
     }

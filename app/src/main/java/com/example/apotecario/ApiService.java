@@ -45,6 +45,12 @@ public interface ApiService {
             @Query("perfilId") Integer perfilId
     );
 
+    @DELETE("tratamento/{id}")
+    Call<Void> deletarTratamento(
+            @Path("id") Integer id,
+            @Query("perfilId") Integer perfilId
+    );
+
     // --- Contas e Usuários ---
 
     // Cadastro de nova conta

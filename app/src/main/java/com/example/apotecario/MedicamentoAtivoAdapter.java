@@ -14,9 +14,16 @@ import java.util.List;
 public class MedicamentoAtivoAdapter extends RecyclerView.Adapter<MedicamentoAtivoAdapter.ViewHolder> {
 
     private List<MedicamentoAtivo> listaMedicamentos;
+    private OnMedicamentoClickListener listener;
 
-    public MedicamentoAtivoAdapter(List<MedicamentoAtivo> listaMedicamentos) {
+    public interface OnMedicamentoClickListener {
+        void onMedicamentoLongClick(MedicamentoAtivo medicamento);
+        void onTomarClick(MedicamentoAtivo medicamento);
+    }
+
+    public MedicamentoAtivoAdapter(List<MedicamentoAtivo> listaMedicamentos, OnMedicamentoClickListener listener) {
         this.listaMedicamentos = listaMedicamentos;
+        this.listener = listener;
     }
 
     @NonNull
@@ -35,7 +42,21 @@ public class MedicamentoAtivoAdapter extends RecyclerView.Adapter<MedicamentoAti
         holder.ivIcone.setImageResource(med.getIconeRes());
 
         holder.itemView.findViewById(R.id.btnTomarItem).setOnClickListener(v -> {
-            // Lógica para marcar como tomado
+            if (listener != null) listener.onTomarClick(med);
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null) {
+                listener.onMedicamentoLongClick(med);
+                return true;
+            }
+            return false;
+        });
+
+        // Também permitir clique simples para abrir opções se preferir,
+        // mas o usuário pediu "ao clicar", então vamos usar o clique normal para abrir o menu.
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onMedicamentoLongClick(med);
         });
     }
 
