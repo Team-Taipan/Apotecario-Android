@@ -67,14 +67,18 @@ public class LoginActivity extends AppCompatActivity {
         RetrofitClient.getApiService().login(credenciais).enqueue(new Callback<Map<String, String>>() {
             @Override
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+
                 if (response.isSuccessful() && response.body() != null) {
+
                     Map<String, String> dados = response.body();
 
                     String token = dados.get("accessToken");
-                    String ultimoLogin = dados.get("ultimoLogin");
+                    String exibirIntroducaoStr = dados.get("exibirIntroducao");
 
                     Log.d("LOGIN_DEBUG", "Token recebido: " + token);
+                    Log.d("LOGIN_DEBUG", "exibirIntroducao: " + exibirIntroducaoStr);
 
+                    // salva token
                     if (token != null) {
                         tokenManager.saveToken(token);
 
@@ -82,11 +86,20 @@ public class LoginActivity extends AppCompatActivity {
                                 "Token salvo: " + tokenManager.getToken());
                     }
 
-                    Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
+                    // converte boolean seguro
+                    boolean exibirIntroducao = false;
+
+                    if (exibirIntroducaoStr != null) {
+                        exibirIntroducao = Boolean.parseBoolean(exibirIntroducaoStr);
+                    }
+
+                    Toast.makeText(LoginActivity.this,
+                            "Login realizado com sucesso!",
+                            Toast.LENGTH_SHORT).show();
 
                     Intent intent;
-                    // Se ultimoLogin for nulo, vai para Criar Perfil
-                    if (ultimoLogin == null || ultimoLogin.isEmpty() || ultimoLogin.equals("null")) {
+
+                    if (exibirIntroducao) {
                         intent = new Intent(LoginActivity.this, CriarPerfilActivity.class);
                     } else {
                         intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -94,14 +107,19 @@ public class LoginActivity extends AppCompatActivity {
 
                     startActivity(intent);
                     finish();
+
                 } else {
-                    Toast.makeText(LoginActivity.this, "Erro: Email ou senha incorretos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this,
+                            "Erro: Email ou senha incorretos",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, String>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Erro de conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this,
+                        "Erro de conexão: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }

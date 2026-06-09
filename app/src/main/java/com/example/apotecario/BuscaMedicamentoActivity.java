@@ -83,7 +83,7 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
                     }
                 };
 
-                // Aguarda 500ms de "silêncio" no teclado para disparar a API
+                // Aguarda 500ms no teclado para disparar a API
                 searchHandler.postDelayed(searchRunnable, 500);
             }
 
@@ -91,11 +91,8 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        // Clique para cadastrar medicamento manual (caso não encontre na ANVISA)
+        // Cadastrar medicamento manual (caso não encontre na ANVISA)
         tvCadastreAqui.setOnClickListener(v -> {
-            // Intent para tela de cadastro manual (ajuste o nome da Activity se necessário)
-            // Intent intent = new Intent(this, CadastroManualMedicamentoActivity.class);
-            // startActivity(intent);
             Toast.makeText(this, "Funcionalidade de cadastro manual em breve!", Toast.LENGTH_SHORT).show();
         });
     }
@@ -120,9 +117,6 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
                     Log.e("API_ERROR", "Erro ao buscar: " + response.code());
                 }
 
-                Log.d("API_DEBUG", "CODE: " + response.code());
-                Log.d("API_DEBUG", "BODY: " + response.body());
-                Log.d("API_DEBUG", "ERROR: " + response.errorBody());
             }
 
             @Override
