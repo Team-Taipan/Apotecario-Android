@@ -31,12 +31,11 @@ public class MedicamentoAdapter extends RecyclerView.Adapter<MedicamentoAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Medicamento med = medicamentos.get(position);
         holder.tvNome.setText(med.getNome());
-        holder.ivIcon.setImageResource(med.getIconeRes());
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), FrequenciaMedicamentoActivity.class);
             // Opcionalmente passar o nome do medicamento selecionado
-            intent.putExtra("NOME_MEDICAMENTO", med.getNome());
+            intent.putExtra("MEDICAMENTO", med);
             v.getContext().startActivity(intent);
         });
     }

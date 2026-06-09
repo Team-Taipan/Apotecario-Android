@@ -26,11 +26,18 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
     private TextView tvQuantidade;
     private TextView tvDataInicio, tvHorarioUso, tvDataTermino, tvIntervalo;
 
+    private Medicamento medicamentoSelecionado;
+    private int frequenciaSelecionada;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_informacao_tratamento);
+
+        medicamentoSelecionado = (Medicamento) getIntent().getSerializableExtra("MEDICAMENTO");
+
+        frequenciaSelecionada = getIntent().getIntExtra("FREQUENCIA_SELECIONADA", 0);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -39,7 +46,7 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         });
 
         // Recuperar a frequência selecionada
-        int frequencia = getIntent().getIntExtra("FREQUENCIA_SELECIONADA", 0);
+        int frequencia = frequenciaSelecionada;
 
         // Referências da UI
         tvQuantidade = findViewById(R.id.tvQuantidade);
@@ -47,10 +54,10 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         tvHorarioUso = findViewById(R.id.tvHorarioUso);
         tvDataTermino = findViewById(R.id.tvDataTermino);
         tvIntervalo = findViewById(R.id.tvIntervalo);
-        
+
         ImageButton btnMenos = findViewById(R.id.btnMenos);
         ImageButton btnMais = findViewById(R.id.btnMais);
-        
+
         LinearLayout llDataInicio = findViewById(R.id.llDataInicio);
         LinearLayout llHorarioUso = findViewById(R.id.llHorarioUso);
         LinearLayout llDataTermino = findViewById(R.id.llDataTermino);
@@ -61,16 +68,11 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
 
         // (DD/MM/AAAA)
-        String dataAtual = String.format(Locale.getDefault(), "%02d/%02d/%d", 
-                calendar.get(Calendar.DAY_OF_MONTH), 
-                calendar.get(Calendar.MONTH) + 1, 
-                calendar.get(Calendar.YEAR));
+        String dataAtual = String.format(Locale.getDefault(), "%02d/%02d/%d", calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.YEAR));
         tvDataInicio.setText(dataAtual);
 
         // (HH:MM)
-        String horaAtual = String.format(Locale.getDefault(), "%02d:%02d", 
-                calendar.get(Calendar.HOUR_OF_DAY), 
-                calendar.get(Calendar.MINUTE));
+        String horaAtual = String.format(Locale.getDefault(), "%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         tvHorarioUso.setText(horaAtual);
 
         // Lógica de Visibilidade: Se for 1 vez ao dia, esconde o intervalo
@@ -106,6 +108,21 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         findViewById(R.id.btnProximo).setOnClickListener(v -> {
             // Navega para a tela de estoque
             Intent intent = new Intent(this, EstoqueMedicamentoActivity.class);
+
+            intent.putExtra("MEDICAMENTO", medicamentoSelecionado);
+
+            intent.putExtra("FREQUENCIA_SELECIONADA", frequenciaSelecionada);
+
+            intent.putExtra("QTD_DOSE", quantidade);
+
+            intent.putExtra("DATA_INICIO", tvDataInicio.getText().toString());
+
+            intent.putExtra("DATA_FIM", tvDataTermino.getText().toString());
+
+            intent.putExtra("HORARIO", tvHorarioUso.getText().toString());
+
+            intent.putExtra("INTERVALO", tvIntervalo.getText().toString());
+
             startActivity(intent);
         });
     }
@@ -132,11 +149,10 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (view, selectedYear, selectedMonth, selectedDay) -> {
-                    String date = String.format(Locale.getDefault(), "%02d/%02d/%d", selectedDay, selectedMonth + 1, selectedYear);
-                    targetTextView.setText(date);
-                }, year, month, day);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
+            String date = String.format(Locale.getDefault(), "%02d/%02d/%d", selectedDay, selectedMonth + 1, selectedYear);
+            targetTextView.setText(date);
+        }, year, month, day);
         datePickerDialog.show();
     }
 
@@ -145,11 +161,10 @@ public class InformacaoTratamentoActivity extends AppCompatActivity {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                (view, selectedHour, selectedMinute) -> {
-                    String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
-                    tvHorarioUso.setText(time);
-                }, hour, minute, true);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, selectedHour, selectedMinute) -> {
+            String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+            tvHorarioUso.setText(time);
+        }, hour, minute, true);
         timePickerDialog.show();
     }
 }

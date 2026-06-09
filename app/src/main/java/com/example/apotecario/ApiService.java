@@ -15,13 +15,10 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     // --- Medicamentos ---
-    
+
     // Busca medicamentos na base da ANVISA
     @GET("medicamento/anvisa")
-    Call<MedicamentoResponse> getMedicamentosAnvisa(
-            @Query("nome") String nome,
-            @Query("pagina") Integer pagina
-    );
+    Call<MedicamentoResponse> getMedicamentosAnvisa(@Query("nome") String nome, @Query("pagina") Integer pagina);
 
     // Cria um medicamento personalizado
     @POST("medicamento")
@@ -35,6 +32,13 @@ public interface ApiService {
     @DELETE("medicamento/{id}")
     Call<Void> deletarMedicamento(@Path("id") String id);
 
+    // --- Tratamento ---
+
+    @POST("tratamento")
+    Call<Void> criarTratamento(
+            @Query("perfilId") Integer perfilId,
+            @Body CriarTratamentoRequest request
+    );
 
     // --- Contas e Usuários ---
 

@@ -1,33 +1,24 @@
 package com.example.apotecario;
 
-import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Medicamento {
+public class Medicamento implements Serializable {
 
-    @SerializedName("med_nome")
+    private Integer id;
+
     private String nome;
 
-    private int iconeRes;
+    private String origem;
 
-    public Medicamento() {
+    public Integer getCodigo() {
+        return id;
     }
 
     public String getNome() {
         return nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public int getIconeRes() {
-        if (iconeRes == 0) {
-            return android.R.drawable.ic_menu_edit;
-        }
-        return iconeRes;
-    }
-
-    public void setIconeRes(int iconeRes) {
-        this.iconeRes = iconeRes;
+    public String getOrigem() {
+        return origem;
     }
 }

@@ -111,12 +111,11 @@ public class BuscaMedicamentoActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
 
+                    Log.d("BUSCA", response.body().getData().toString());
+
                     listaMedicamentos.clear();
                     listaMedicamentos.addAll(response.body().getData());
                     adapter.notifyDataSetChanged();
-
-                } else {
-                    Log.e("API_ERROR", "Erro: " + response.code());
                 }
             }
 
