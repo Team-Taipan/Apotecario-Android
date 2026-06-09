@@ -20,7 +20,7 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
     private Button btnConfirmar, btnExcluirPerfil;
     private ImageButton btnVoltar;
 
-    // 🔥 IMPORTANTE: Retrofit espera String
+    // Retrofit espera String
     private String idPerfil;
     private String tipoPerfil;
     private String nomePerfil;
@@ -36,12 +36,11 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         btnExcluirPerfil = findViewById(R.id.btnExcluirPerfil);
         btnVoltar = findViewById(R.id.btnVoltar);
 
-        // 🔥 Dados vindos da Intent
+        // Dados vindos da Intent
         idPerfil = getIntent().getStringExtra("ID_PERFIL");
         nomePerfil = getIntent().getStringExtra("NOME_PERFIL");
         tipoPerfil = getIntent().getStringExtra("TIPO_PERFIL");
 
-        // 🔴 validação obrigatória
         if (idPerfil == null || idPerfil.isEmpty()) {
             Toast.makeText(this, "Erro: ID do perfil inválido", Toast.LENGTH_SHORT).show();
             finish();
@@ -61,9 +60,6 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         btnExcluirPerfil.setOnClickListener(v -> excluirPerfil());
     }
 
-    // =====================================================
-    // 🔥 UPDATE PERFIL
-    // =====================================================
     private void salvarAlteracoes() {
 
         String novoNome = etNomeCompleto.getText().toString().trim();
@@ -120,9 +116,6 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         });
     }
 
-    // =====================================================
-    // 🔥 DELETE PERFIL
-    // =====================================================
     private void excluirPerfil() {
 
         ApiService api = RetrofitClient.getApiServiceWithToken(this);
@@ -158,9 +151,6 @@ public class GerenciarPerfilActivity extends AppCompatActivity {
         });
     }
 
-    // =====================================================
-    // 🔥 REGRA DE UI (Titular bloqueado)
-    // =====================================================
     private void aplicarRegraTipoPerfil(String tipoPerfil) {
 
         if (tipoPerfil != null && tipoPerfil.equalsIgnoreCase("Titular")) {

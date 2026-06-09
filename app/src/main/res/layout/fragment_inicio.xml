@@ -82,7 +82,7 @@
                 android:textColor="#74777F"
                 android:textSize="16sp" />
 
-            <!-- Dynamic List using RecyclerView -->
+            <!-- Dynamic List usando RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMedicamentosAtivos"
                 android:layout_width="match_parent"
@@ -91,7 +91,7 @@
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/item_medicamento_ativo" />
 
-            <!-- Padding at bottom for FAB -->
+            <!-- Padding no botão flutuante -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="100dp" />

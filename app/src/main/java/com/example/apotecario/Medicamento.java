@@ -9,7 +9,8 @@ public class Medicamento implements Serializable {
     private String origem;
     private String fotoURL;
 
-    public Medicamento() {}
+    public Medicamento() {
+    }
 
     public Medicamento(String nome, String origem) {
         this.nome = nome;

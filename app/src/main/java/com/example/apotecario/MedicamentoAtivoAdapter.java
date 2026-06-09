@@ -18,6 +18,7 @@ public class MedicamentoAtivoAdapter extends RecyclerView.Adapter<MedicamentoAti
 
     public interface OnMedicamentoClickListener {
         void onMedicamentoLongClick(MedicamentoAtivo medicamento);
+
         void onTomarClick(MedicamentoAtivo medicamento);
     }
 
@@ -48,7 +49,7 @@ public class MedicamentoAtivoAdapter extends RecyclerView.Adapter<MedicamentoAti
             holder.itemView.setEnabled(false);
             btnTomar.setEnabled(false);
             btnTomar.setAlpha(0.5f);
-            
+
             // Remove listeners
             holder.itemView.setOnClickListener(null);
             holder.itemView.setOnLongClickListener(null);

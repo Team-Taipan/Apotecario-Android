@@ -48,16 +48,13 @@ public class NovoPerfilActivity extends AppCompatActivity {
         Button btnCriar = findViewById(R.id.btnCriar);
         ImageButton btnVoltar = findViewById(R.id.btnVoltar);
 
-        galleryLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        ivAvatar.setImageURI(uri);
-                        ivAvatar.setImageTintList(null);
-                        selectedAvatarName = "avatar_custom_dep.png";
-                    }
-                }
-        );
+        galleryLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                ivAvatar.setImageURI(uri);
+                ivAvatar.setImageTintList(null);
+                selectedAvatarName = "avatar_custom_dep.png";
+            }
+        });
 
         fabAddPhoto.setOnClickListener(v -> galleryLauncher.launch("image/*"));
         ivAvatar.setOnClickListener(v -> galleryLauncher.launch("image/*"));
@@ -93,13 +90,7 @@ public class NovoPerfilActivity extends AppCompatActivity {
         }
 
         // Cria um novo perfil com os dados
-        Perfil novoPerfil = new Perfil(
-                nome,
-                "avatar_2.png",
-                "Dependente",
-                parentescoId,
-                "Convidado"
-        );
+        Perfil novoPerfil = new Perfil(nome, "avatar_2.png", "Dependente", parentescoId, "Convidado");
 
         // Client com Token JWT
         RetrofitClient.getApiServiceWithToken(this).cadastrarPerfil(novoPerfil).enqueue(new Callback<Perfil>() {

@@ -82,8 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (token != null) {
                         tokenManager.saveToken(token);
 
-                        Log.d("LOGIN_DEBUG",
-                                "Token salvo: " + tokenManager.getToken());
+                        Log.d("LOGIN_DEBUG", "Token salvo: " + tokenManager.getToken());
                     }
 
                     // converte boolean seguro
@@ -93,9 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                         exibirIntroducao = Boolean.parseBoolean(exibirIntroducaoStr);
                     }
 
-                    Toast.makeText(LoginActivity.this,
-                            "Login realizado com sucesso!",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
 
                     Intent intent;
 
@@ -109,17 +106,13 @@ public class LoginActivity extends AppCompatActivity {
                     finish();
 
                 } else {
-                    Toast.makeText(LoginActivity.this,
-                            "Erro: Email ou senha incorretos",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Erro: Email ou senha incorretos", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, String>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this,
-                        "Erro de conexão: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Erro de conexão: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

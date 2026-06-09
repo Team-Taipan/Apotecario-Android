@@ -66,26 +66,6 @@ public class InicioFragment extends Fragment {
         return view;
     }
 
-    private void carregarMedicamentosExemplo() {
-        List<MedicamentoAtivo> lista = new ArrayList<>();
-        lista.add(new MedicamentoAtivo(1, "Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
-        
-        adapter = new MedicamentoAtivoAdapter(lista, new MedicamentoAtivoAdapter.OnMedicamentoClickListener() {
-            @Override
-            public void onMedicamentoLongClick(MedicamentoAtivo medicamento) {
-                mostrarOpcoesTratamento(medicamento);
-            }
-
-            @Override
-            public void onTomarClick(MedicamentoAtivo medicamento) {
-                medicamento.setTomado(true);
-                adapter.notifyDataSetChanged();
-                Toast.makeText(getContext(), "Medicamento tomado: " + medicamento.getNome(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        rvMedicamentosAtivos.setAdapter(adapter);
-    }
-
     private void atualizarNomePerfilAtual() {
         RetrofitClient.getApiServiceWithToken(getContext()).getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
 
@@ -293,12 +273,7 @@ public class InicioFragment extends Fragment {
     }
 
     private void confirmarExclusaoTratamento(MedicamentoAtivo medicamento) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Desvincular")
-                .setMessage("Deseja realmente remover o tratamento de " + medicamento.getNome() + "?")
-                .setPositiveButton("Sim", (dialog, which) -> deletarTratamento(medicamento.getId()))
-                .setNegativeButton("Não", null)
-                .show();
+        new AlertDialog.Builder(getContext()).setTitle("Desvincular").setMessage("Deseja realmente remover o tratamento de " + medicamento.getNome() + "?").setPositiveButton("Sim", (dialog, which) -> deletarTratamento(medicamento.getId())).setNegativeButton("Não", null).show();
     }
 
     private void deletarTratamento(Integer tratamentoId) {
