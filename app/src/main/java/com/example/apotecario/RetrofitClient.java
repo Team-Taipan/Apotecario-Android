@@ -1,6 +1,8 @@
 package com.example.apotecario;
 
 import android.content.Context;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -9,7 +11,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
 
     private static Retrofit retrofit = null;
-    private static final String BASE_URL = "http://192.168.x.x:4000/";
+    // Se mudar de rede, lembre-se de atualizar este IP
+    private static final String BASE_URL = "http://192.168.2.104:4000/";
 
     public static ApiService getApiService() {
         if (retrofit == null) {
@@ -22,29 +25,29 @@ public class RetrofitClient {
     }
 
     public static ApiService getApiServiceWithToken(Context context) {
-        TokenManager tokenManager = new TokenManager(context);
-        String token = tokenManager.getToken();
-
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(chain -> {
-                    Request original = chain.request();
-                    Request.Builder requestBuilder = original.newBuilder();
-                    
-                    if (token != null) {
-                        requestBuilder.header("Authorization", "Bearer " + token);
+                    // Busca o token DENTRO do interceptor
+                    TokenManager tm = new TokenManager(context);
+                    String token = tm.getToken();
+
+                    Request.Builder builder = chain.request().newBuilder();
+                    if (token != null && !token.isEmpty()) {
+                        builder.addHeader("Authorization", "Bearer " + token);
                     }
-                    
-                    Request request = requestBuilder.build();
-                    return chain.proceed(request);
+                    return chain.proceed(builder.build());
                 })
                 .build();
 
-        Retrofit retrofitWithToken = new Retrofit.Builder()
+        Gson gson = new GsonBuilder()
+                .serializeNulls() // Importante para enviar parentescoId: null
+                .create();
+
+        return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        return retrofitWithToken.create(ApiService.class);
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build()
+                .create(ApiService.class);
     }
 }

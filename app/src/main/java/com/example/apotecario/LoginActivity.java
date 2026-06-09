@@ -2,6 +2,7 @@ package com.example.apotecario;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -68,11 +69,17 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, String> dados = response.body();
-                    String token = dados.get("token");
+
+                    String token = dados.get("accessToken");
                     String ultimoLogin = dados.get("ultimoLogin");
+
+                    Log.d("LOGIN_DEBUG", "Token recebido: " + token);
 
                     if (token != null) {
                         tokenManager.saveToken(token);
+
+                        Log.d("LOGIN_DEBUG",
+                                "Token salvo: " + tokenManager.getToken());
                     }
 
                     Toast.makeText(LoginActivity.this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();

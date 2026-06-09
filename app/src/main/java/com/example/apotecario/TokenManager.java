@@ -17,6 +17,7 @@ public class TokenManager {
     public void saveToken(String token) {
         editor.putString(KEY_TOKEN, token);
         editor.apply();
+        editor.commit();
     }
 
     public String getToken() {

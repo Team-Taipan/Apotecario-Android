@@ -2,6 +2,7 @@ package com.example.apotecario;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,7 +27,7 @@ public class CriarPerfilActivity extends AppCompatActivity {
     private ImageView ivAvatar;
     private EditText etNomeCompleto;
     private ActivityResultLauncher<String> galleryLauncher;
-    private String selectedAvatarName = "avatar_1.png"; // Placeholder
+    private String selectedAvatarName = "avatar_1.png"; // Padrão inicial
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +46,13 @@ public class CriarPerfilActivity extends AppCompatActivity {
         FloatingActionButton fabAddPhoto = findViewById(R.id.fabAddPhoto);
         Button btnCriarPerfil = findViewById(R.id.btnCriarPerfil);
 
-        // Configura o launcher para abrir a galeria
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         ivAvatar.setImageURI(uri);
                         ivAvatar.setImageTintList(null);
+                        // No futuro, aqui você faria o upload e receberia o nome real
                         selectedAvatarName = "avatar_custom.png";
                     }
                 }
@@ -65,37 +66,42 @@ public class CriarPerfilActivity extends AppCompatActivity {
 
     private void salvarPerfil() {
         String nome = etNomeCompleto.getText().toString().trim();
-
         if (nome.isEmpty()) {
             Toast.makeText(this, "Por favor, insira seu nome completo", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Criar o objeto Perfil com os dados do titular
-        // nome, avatar, tipo, parentescoId (null), papel
-        Perfil novoPerfil = new Perfil(nome, "avatar_1.png", "Titular", null, "Admin");
+        // Validação de segurança do token
+        TokenManager tokenManager = new TokenManager(this);
+        String token = tokenManager.getToken();
+        Log.d("TOKEN_DEBUG", "Token recuperado: " + token);
+        if (token == null || token.isEmpty()) {
+            Log.e("AUTH_ERROR", "Token não encontrado no TokenManager!");
+            Toast.makeText(this, "Erro de autenticação. Refaça o login.", Toast.LENGTH_LONG).show();
+            return;
+        }
 
-        // Obter a instância da API com o Token JWT injetado
+        // DTO: Titular, parentescoId null, Admin
+        Perfil novoPerfil = new Perfil(nome, selectedAvatarName, "Titular", null, "Admin");
+
         ApiService api = RetrofitClient.getApiServiceWithToken(this);
 
-        // Chamar o endpoint de criação de perfil inicial
         api.criarPerfilInicial(novoPerfil).enqueue(new Callback<Perfil>() {
             @Override
             public void onResponse(Call<Perfil> call, Response<Perfil> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(CriarPerfilActivity.this, "Perfil criado com sucesso!", Toast.LENGTH_SHORT).show();
-
-                    // Navega para a MainActivity após o sucesso
-                    Intent intent = new Intent(CriarPerfilActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    startActivity(new Intent(CriarPerfilActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(CriarPerfilActivity.this, "Erro ao criar perfil. Verifique os dados.", Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "Erro " + response.code() + " ao criar perfil inicial");
+                    Toast.makeText(CriarPerfilActivity.this, "Erro " + response.code() + ": Não autorizado", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Perfil> call, Throwable t) {
+                Log.e("API_ERROR", "Falha de rede: " + t.getMessage());
                 Toast.makeText(CriarPerfilActivity.this, "Erro de rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
