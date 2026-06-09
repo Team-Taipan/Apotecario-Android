@@ -1,6 +1,7 @@
 package com.example.apotecario;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +42,15 @@ public class PerfilAdapter extends RecyclerView.Adapter<PerfilAdapter.ViewHolder
         holder.tvNome.setText(perfil.getNome());
 
         // Converte o nome da string (ex: "avatar_1.png") para o ID do drawable
-        int resId = getDrawableId(context, perfil.getAvatar());
-        if (resId != 0) {
-            holder.ivAvatar.setImageResource(resId);
-        } else {
-            // Imagem padrão caso o nome não seja encontrado
+        try {
+            int resId = getDrawableId(context, perfil.getAvatar());
+            if (resId != 0) {
+                holder.ivAvatar.setImageResource(resId);
+            } else {
+                holder.ivAvatar.setImageResource(android.R.drawable.ic_menu_gallery);
+            }
+        } catch (Exception e) {
+            Log.e("RES_ERROR", "Erro ao carregar recurso: " + perfil.getAvatar());
             holder.ivAvatar.setImageResource(android.R.drawable.ic_menu_gallery);
         }
 
@@ -54,11 +59,9 @@ public class PerfilAdapter extends RecyclerView.Adapter<PerfilAdapter.ViewHolder
         holder.itemView.setOnClickListener(v -> listener.onPerfilClick(perfil));
     }
 
-    // Método auxiliar para buscar o ID do drawable pelo nome
     private int getDrawableId(Context context, String name) {
         if (name == null || name.isEmpty()) return 0;
 
-        // Remove extensões como .png se o backend enviar
         String resourceName = name;
         if (name.contains(".")) {
             resourceName = name.substring(0, name.lastIndexOf('.'));

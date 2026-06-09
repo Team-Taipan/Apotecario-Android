@@ -1,6 +1,8 @@
 package com.example.apotecario;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +33,8 @@ public class InicioFragment extends Fragment {
     private RecyclerView rvMedicamentosAtivos;
     private MedicamentoAtivoAdapter adapter;
     private TextView tvUserName;
+    private static final String PREFS_NAME = "PerfilPrefs";
+    private static final String KEY_PERFIL_NOME = "nome_perfil_ativo";
 
     @Nullable
     @Override
@@ -40,15 +44,21 @@ public class InicioFragment extends Fragment {
         tvUserName = view.findViewById(R.id.tvUserName);
         rvMedicamentosAtivos = view.findViewById(R.id.rvMedicamentosAtivos);
         rvMedicamentosAtivos.setLayoutManager(new LinearLayoutManager(getContext()));
-        
+
         FloatingActionButton fab = view.findViewById(R.id.fabAddInicio);
+
+        // Carrega o último nome salvo ou um padrão
+        SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String nomeSalvo = prefs.getString(KEY_PERFIL_NOME, "Selecionar Perfil");
+        tvUserName.setText(nomeSalvo);
 
         tvUserName.setOnClickListener(v -> showSelecionarPerfilModal());
         fab.setOnClickListener(v -> showAddOptionsDialog());
 
-        // Por enquanto, como o endpoint de medicamentos ativos depende de um perfil selecionado,
-        // manteremos uma lista mockada ou você pode chamar o getMedicamentosAnvisa para testes.
         carregarMedicamentosExemplo();
+
+        // Atualiza a lista de perfis em segundo plano para garantir que o nome esteja certo
+        atualizarNomePerfilAtual();
 
         return view;
     }
@@ -58,6 +68,24 @@ public class InicioFragment extends Fragment {
         lista.add(new MedicamentoAtivo("Dipirona", "2 comprimidos", "09:00", android.R.drawable.ic_menu_edit));
         adapter = new MedicamentoAtivoAdapter(lista);
         rvMedicamentosAtivos.setAdapter(adapter);
+    }
+
+    private void atualizarNomePerfilAtual() {
+        RetrofitClient.getApiServiceWithToken(getContext()).getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
+            @Override
+            public void onResponse(Call<List<Perfil>> call, Response<List<Perfil>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    // Se não tiver nada selecionado, coloca o primeiro (geralmente o titular)
+                    SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                    if (!prefs.contains(KEY_PERFIL_NOME)) {
+                        String primeiroNome = response.body().get(0).getNome();
+                        tvUserName.setText(primeiroNome);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<List<Perfil>> call, Throwable t) {}
+        });
     }
 
     private void showSelecionarPerfilModal() {
@@ -70,24 +98,36 @@ public class InicioFragment extends Fragment {
         RecyclerView rvPerfis = view.findViewById(R.id.rvPerfis);
         rvPerfis.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // Chamada para o novo endpoint: /perfil/me
-        RetrofitClient.getApiService().getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
+        // Busca todos os perfis (Titular + Dependentes) vinculados à conta
+        ApiService api = RetrofitClient.getApiServiceWithToken(getContext());
+        api.getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
             @Override
             public void onResponse(Call<List<Perfil>> call, Response<List<Perfil>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Perfil> listaPerfis = response.body();
-                    
+
                     PerfilAdapter perfilAdapter = new PerfilAdapter(listaPerfis, perfil -> {
+                        // Ao clicar, atualiza a UI e salva a preferência
                         tvUserName.setText(perfil.getNome());
+
+                        SharedPreferences.Editor editor = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+                        editor.putString(KEY_PERFIL_NOME, perfil.getNome());
+                        editor.apply();
+
+                        // Função para recarregar os medicamentos do perfil selecionado
+                        // carregarMedicamentosDoPerfil(perfil.getId());
+
                         bottomSheetDialog.dismiss();
                     });
                     rvPerfis.setAdapter(perfilAdapter);
+                } else {
+                    Toast.makeText(getContext(), "Erro ao carregar perfis", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Perfil>> call, Throwable t) {
-                Log.e("API_ERROR", "Erro ao carregar perfis: " + t.getMessage());
+                Log.e("API_ERROR", "Erro: " + t.getMessage());
             }
         });
 
