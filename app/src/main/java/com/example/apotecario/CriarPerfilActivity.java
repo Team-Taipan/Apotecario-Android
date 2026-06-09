@@ -1,7 +1,10 @@
 package com.example.apotecario;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,14 +30,14 @@ public class CriarPerfilActivity extends AppCompatActivity {
     private ImageView ivAvatar;
     private EditText etNomeCompleto;
     private ActivityResultLauncher<String> galleryLauncher;
-    private String selectedAvatarName = "avatar_1.png"; // Padrão inicial
+    private String selectedAvatarName = "avatar_1.png"; // padrão
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_criar_perfil);
-        
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -52,8 +55,11 @@ public class CriarPerfilActivity extends AppCompatActivity {
                     if (uri != null) {
                         ivAvatar.setImageURI(uri);
                         ivAvatar.setImageTintList(null);
-                        // No futuro, aqui você faria o upload e receberia o nome real
-                        selectedAvatarName = "avatar_custom.png";
+
+                        // Pega o nome real do arquivo
+                        selectedAvatarName = getFileNameFromUri(uri);
+
+                        Log.d("AVATAR_DEBUG", "Imagem selecionada: " + selectedAvatarName);
                     }
                 }
         );
@@ -66,23 +72,30 @@ public class CriarPerfilActivity extends AppCompatActivity {
 
     private void salvarPerfil() {
         String nome = etNomeCompleto.getText().toString().trim();
+
         if (nome.isEmpty()) {
             Toast.makeText(this, "Por favor, insira seu nome completo", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Validação de segurança do token
         TokenManager tokenManager = new TokenManager(this);
         String token = tokenManager.getToken();
+
         Log.d("TOKEN_DEBUG", "Token recuperado: " + token);
+
         if (token == null || token.isEmpty()) {
             Log.e("AUTH_ERROR", "Token não encontrado no TokenManager!");
             Toast.makeText(this, "Erro de autenticação. Refaça o login.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // DTO: Titular, parentescoId null, Admin
-        Perfil novoPerfil = new Perfil(nome, selectedAvatarName, "Titular", null, "Admin");
+        Perfil novoPerfil = new Perfil(
+                nome,
+                selectedAvatarName,
+                "Titular",
+                null,
+                "Admin"
+        );
 
         ApiService api = RetrofitClient.getApiServiceWithToken(this);
 
@@ -90,20 +103,56 @@ public class CriarPerfilActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Perfil> call, Response<Perfil> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(CriarPerfilActivity.this, "Perfil criado com sucesso!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CriarPerfilActivity.this,
+                            "Perfil criado com sucesso!",
+                            Toast.LENGTH_SHORT).show();
+
                     startActivity(new Intent(CriarPerfilActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    Log.e("API_ERROR", "Erro " + response.code() + " ao criar perfil inicial");
-                    Toast.makeText(CriarPerfilActivity.this, "Erro " + response.code() + ": Não autorizado", Toast.LENGTH_SHORT).show();
+                    try {
+                        Log.e("API_ERROR",
+                                "Erro " + response.code() +
+                                        " Body: " + response.errorBody().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    Toast.makeText(CriarPerfilActivity.this,
+                            "Erro " + response.code() + ": Não autorizado",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Perfil> call, Throwable t) {
                 Log.e("API_ERROR", "Falha de rede: " + t.getMessage());
-                Toast.makeText(CriarPerfilActivity.this, "Erro de rede: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CriarPerfilActivity.this,
+                        "Erro de rede: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // Nome real do arquivo selecionado
+    private String getFileNameFromUri(Uri uri) {
+        String result = null;
+
+        if ("content".equals(uri.getScheme())) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (index != -1) {
+                        result = cursor.getString(index);
+                    }
+                }
+            }
+        }
+
+        if (result == null) {
+            result = uri.getLastPathSegment();
+        }
+
+        return result;
     }
 }
