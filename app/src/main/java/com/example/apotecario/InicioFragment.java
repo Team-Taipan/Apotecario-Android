@@ -33,12 +33,17 @@ public class InicioFragment extends Fragment {
     private RecyclerView rvMedicamentosAtivos;
     private MedicamentoAtivoAdapter adapter;
     private TextView tvUserName;
+
     private static final String PREFS_NAME = "PerfilPrefs";
     private static final String KEY_PERFIL_NOME = "nome_perfil_ativo";
+    private static final String KEY_PERFIL_TIPO = "tipo_perfil_ativo";
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_inicio, container, false);
 
         tvUserName = view.findViewById(R.id.tvUserName);
@@ -47,8 +52,9 @@ public class InicioFragment extends Fragment {
 
         FloatingActionButton fab = view.findViewById(R.id.fabAddInicio);
 
-        // Carrega o último nome salvo ou um padrão
-        SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity()
+                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
         String nomeSalvo = prefs.getString(KEY_PERFIL_NOME, "Selecionar Perfil");
         tvUserName.setText(nomeSalvo);
 
@@ -56,8 +62,6 @@ public class InicioFragment extends Fragment {
         fab.setOnClickListener(v -> showAddOptionsDialog());
 
         carregarMedicamentosExemplo();
-
-        // Atualiza a lista de perfis em segundo plano para garantir que o nome esteja certo
         atualizarNomePerfilAtual();
 
         return view;
@@ -71,57 +75,84 @@ public class InicioFragment extends Fragment {
     }
 
     private void atualizarNomePerfilAtual() {
-        RetrofitClient.getApiServiceWithToken(getContext()).getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
-            @Override
-            public void onResponse(Call<List<Perfil>> call, Response<List<Perfil>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    // Se não tiver nada selecionado, coloca o primeiro (geralmente o titular)
-                    SharedPreferences prefs = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                    if (!prefs.contains(KEY_PERFIL_NOME)) {
-                        String primeiroNome = response.body().get(0).getNome();
-                        tvUserName.setText(primeiroNome);
+        RetrofitClient.getApiServiceWithToken(getContext())
+                .getMeusPerfis()
+                .enqueue(new Callback<List<Perfil>>() {
+
+                    @Override
+                    public void onResponse(Call<List<Perfil>> call, Response<List<Perfil>> response) {
+
+                        if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+
+                            SharedPreferences prefs = getActivity()
+                                    .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+                            if (!prefs.contains(KEY_PERFIL_NOME)) {
+
+                                Perfil primeiro = response.body().get(0);
+
+                                prefs.edit()
+                                        .putString(KEY_PERFIL_NOME, primeiro.getNome())
+                                        .putString(KEY_PERFIL_TIPO, primeiro.getTipo())
+                                        .apply();
+
+                                tvUserName.setText(primeiro.getNome());
+                            }
+                        }
                     }
-                }
-            }
-            @Override
-            public void onFailure(Call<List<Perfil>> call, Throwable t) {}
-        });
+
+                    @Override
+                    public void onFailure(Call<List<Perfil>> call, Throwable t) {
+                        Log.e("API_ERROR", "Erro: " + t.getMessage());
+                    }
+                });
     }
 
     private void showSelecionarPerfilModal() {
+
         if (getActivity() == null) return;
 
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getActivity());
-        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_selecionar_perfil, null);
+        View view = getLayoutInflater()
+                .inflate(R.layout.bottom_sheet_selecionar_perfil, null);
+
         bottomSheetDialog.setContentView(view);
 
         RecyclerView rvPerfis = view.findViewById(R.id.rvPerfis);
         rvPerfis.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
-        // Busca todos os perfis (Titular + Dependentes) vinculados à conta
         ApiService api = RetrofitClient.getApiServiceWithToken(getContext());
+
         api.getMeusPerfis().enqueue(new Callback<List<Perfil>>() {
+
             @Override
             public void onResponse(Call<List<Perfil>> call, Response<List<Perfil>> response) {
+
                 if (response.isSuccessful() && response.body() != null) {
+
                     List<Perfil> listaPerfis = response.body();
 
-                    PerfilAdapter perfilAdapter = new PerfilAdapter(listaPerfis, perfil -> {
-                        // Ao clicar, atualiza a UI e salva a preferência
+                    PerfilAdapter adapter = new PerfilAdapter(listaPerfis, perfil -> {
+
                         tvUserName.setText(perfil.getNome());
 
-                        SharedPreferences.Editor editor = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
-                        editor.putString(KEY_PERFIL_NOME, perfil.getNome());
-                        editor.apply();
+                        SharedPreferences.Editor editor = getActivity()
+                                .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                                .edit();
 
-                        // Função para recarregar os medicamentos do perfil selecionado
-                        // carregarMedicamentosDoPerfil(perfil.getId());
+                        editor.putString(KEY_PERFIL_NOME, perfil.getNome());
+                        editor.putString(KEY_PERFIL_TIPO, perfil.getTipo());
+                        editor.apply();
 
                         bottomSheetDialog.dismiss();
                     });
-                    rvPerfis.setAdapter(perfilAdapter);
+
+                    rvPerfis.setAdapter(adapter);
+
                 } else {
-                    Toast.makeText(getContext(), "Erro ao carregar perfis", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),
+                            "Erro ao carregar perfis",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -137,25 +168,44 @@ public class InicioFragment extends Fragment {
         });
 
         view.findViewById(R.id.btnGerenciarPerfil).setOnClickListener(v -> {
+
             bottomSheetDialog.dismiss();
+
+            SharedPreferences prefs = getActivity()
+                    .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+            String nome = prefs.getString(KEY_PERFIL_NOME, "");
+            String tipo = prefs.getString(KEY_PERFIL_TIPO, "Dependente");
+
             Intent intent = new Intent(getActivity(), GerenciarPerfilActivity.class);
-            intent.putExtra("NOME_PERFIL", tvUserName.getText().toString());
+            intent.putExtra("NOME_PERFIL", nome);
+            intent.putExtra("TIPO_PERFIL", tipo);
+
             startActivity(intent);
         });
 
-        view.findViewById(R.id.btnClosePerfilModal).setOnClickListener(v -> bottomSheetDialog.dismiss());
+        view.findViewById(R.id.btnClosePerfilModal)
+                .setOnClickListener(v -> bottomSheetDialog.dismiss());
+
         bottomSheetDialog.show();
     }
 
     private void showAddOptionsDialog() {
+
         if (getActivity() == null) return;
+
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getActivity());
-        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_add_options, null);
+        View view = getLayoutInflater()
+                .inflate(R.layout.bottom_sheet_add_options, null);
+
         bottomSheetDialog.setContentView(view);
-        view.findViewById(R.id.cardAddMedicamento).setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            startActivity(new Intent(getActivity(), BuscaMedicamentoActivity.class));
-        });
+
+        view.findViewById(R.id.cardAddMedicamento)
+                .setOnClickListener(v -> {
+                    bottomSheetDialog.dismiss();
+                    startActivity(new Intent(getActivity(), BuscaMedicamentoActivity.class));
+                });
+
         bottomSheetDialog.show();
     }
 }
